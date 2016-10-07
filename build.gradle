@@ -15,7 +15,7 @@ apply plugin: 'spring-boot'
 apply plugin: 'docker'
 
 jar {
-    baseName = 'rifs-data'
+    baseName = 'rifs-service-spring'
     version =  '0.1.0'
 }
 
@@ -46,7 +46,7 @@ dependencies {
 }
 
 //docker group repo
-//group = 'rifs'
+group = 'registry.ukrifs.org'
 
 //docker task
 task buildDocker(type: Docker, dependsOn: build) {
