@@ -39,7 +39,18 @@ public class Opportunity {
 
     public void setTitle(String title) {
         this.title = title;
-        System.out.println("IN SETTER: " + title);
+    }
+
+    public Opportunity() {}
+
+    public Opportunity(Long id, String title, String startDate,
+             String valueUnit, Double valueAmount, List <Description> description)
+    {
+        this.id = id;
+        this.title = title;
+        this.startDate = startDate;
+        this.value = new Value (valueUnit, valueAmount);
+        this.description = description;
     }
 
     public void setStartDate(String startDate) {
@@ -48,13 +59,11 @@ public class Opportunity {
 
     public void setValue(Value value) {
         this.value = value;
-        System.out.println("IN value SETTER: " + value.getUnit());
     }
 
     public void setDescription (List <Description> description)
     {
         this.description = description;
-        System.out.println("IN Desc SETTER: " );
     }
 
     @Override

@@ -55,38 +55,21 @@ public class OpportunityServiceImpl  implements OpportunityService {
     public List<Opportunity> getAllOpportunities() {
 
         List<OpportunityDB> opportunities = opportunityRepository.findAll();
-        List<Opportunity> opportunityModels = new ArrayList<Opportunity>();
 
-        for (OpportunityDB opportunity : opportunities) {
-            //Value v = new Value(opportunity.getValueUnit(), opportunity.getValue().doubleValue());
-            Opportunity opportunityModel = new Opportunity();
-            opportunityModel.setId(opportunity.getId());
-            opportunityModel.setTitle(opportunity.getOpportunityTitle());
-            opportunityModel.setStartDate(opportunity.getStartDate());
-            opportunityModel.setValue(new Value(opportunity.getValueUnit(), opportunity.getValue().doubleValue()));
-            List<Description> descriptions = new ArrayList<>();
+//        for (OpportunityDB opportunity : opportunities) {
+//            System.out.println ("Size = " + opportunity.getSectionDB().size());
+//        }
 
-            for (SectionDB s : opportunity.getSectionDB())
-            {
-                //convert to a stream!
-                //sort by
-//                List<String> paras = new ArrayList <> ();
-//                for (ParagraphDB p : s.getParagraphDB())
-//                {
-//                    //p.getParagraphNumber();
-//                    paras.add(p.getDescription());
-//                }
-                List<String> paras = s.getParagraphDB().stream().sorted().map(ParagraphDB::getDescription).collect(Collectors.toList());
-
-                Description d = new Description(s.getSectionNumber(), s.getSectionTitle(), paras);
-                descriptions.add(d);
-            }
-
-            opportunityModel.setDescription(descriptions);
-            opportunityModels.add(opportunityModel);
-        }
+        List<Opportunity> opportunityModels = opportunities.stream().map
+                (o -> new Opportunity
+                    (o.getId(), o.getOpportunityTitle(), o.getStartDate(), o.getValueUnit(), o.getValue().doubleValue(),
+                        o.getSectionDB().stream().map
+                                (d -> new Description(d.getSectionNumber(), d.getSectionTitle(), d.getParagraphDB().stream().sorted().map(ParagraphDB::getDescription).collect(Collectors.toList()) )).collect(Collectors.toList())
+                    )
+                ).collect(Collectors.toList());
 
         return opportunityModels;
+
     }
 
     /** Gets an Opportunity by id **/
@@ -103,18 +86,26 @@ public class OpportunityServiceImpl  implements OpportunityService {
         opportunityModel.setValue(new Value(opportunity.getValueUnit(), opportunity.getValue().doubleValue()));
         List<Description> descriptions = new ArrayList<>();
 
+        //System.out.println ("Size = " + opportunity.getSectionDB().size());
+        List <Long> sectionsProcessed = new ArrayList();
 
         for (SectionDB s : opportunity.getSectionDB())
         {
-            List<String> paras = s.getParagraphDB().stream().sorted().map(ParagraphDB::getDescription).collect(Collectors.toList());
+            //System.out.println ("IN the Section loop.  Sectionid = " + s.getSectionNumber());
+            //Bug return 1 is reeturn some kind of cartesian join - temp 'fix'
+            if (!sectionsProcessed.contains(s.getId()))
+            {
+               // System.out.println ("IN the Section loop IFIFIF!!.  Sectionid = " + s.getSectionNumber());
 
-            Description d = new Description(s.getSectionNumber(), s.getSectionTitle(), paras);
-            descriptions.add(d);
+                List<String> paras = s.getParagraphDB().stream().sorted().map(ParagraphDB::getDescription).collect(Collectors.toList());
+                Description d = new Description(s.getSectionNumber(), s.getSectionTitle(), paras);
+                descriptions.add(d);
+
+                sectionsProcessed.add(s.getId());
+            }
         }
-
-//Get it working and then convert this for into a stream operation (and maybe even the outer loop!)
-//        opportunity.getSectionDB().stream().map(s -> s)
-//                .forEach(descriptions.add(new Description(SectionDB::getSectionNumber, SectionDB::getSectionTitle(), SectionDB::getParagraphDB().stream().sorted().map(ParagraphDB::getDescription).collect(Collectors.toList()))));
+////        List<Description> descriptions = opportunity.getSectionDB().stream().map
+////                (d -> new Description(d.getSectionNumber(), d.getSectionTitle(), null )).collect(Collectors.toList());
 
         opportunityModel.setDescription(descriptions);
 
@@ -127,18 +118,11 @@ public class OpportunityServiceImpl  implements OpportunityService {
     public List<Opportunity> getAllSummaries() {
 
         List<OpportunityDB> opportunities = opportunityRepository.findAll();
-        List<Opportunity> opportunityModels = new ArrayList<Opportunity>();
+        final List<Description> descriptions = new ArrayList<>();
 
-        for (OpportunityDB opportunity : opportunities) {
-
-            Opportunity opportunityModel = new Opportunity();
-            opportunityModel.setId(opportunity.getId());
-            opportunityModel.setTitle(opportunity.getOpportunityTitle());
-            opportunityModel.setStartDate(opportunity.getStartDate());
-            opportunityModel.setValue(new Value(opportunity.getValueUnit(), opportunity.getValue().doubleValue()));
-
-            opportunityModels.add(opportunityModel);
-        }
+        List<Opportunity> opportunityModels = opportunities.stream().map
+                (o -> new Opportunity(o.getId(), o.getOpportunityTitle(), o.getStartDate(), o.getValueUnit(), o.getValue().doubleValue(), descriptions)
+                ).collect(Collectors.toList());
 
         return opportunityModels;
     }

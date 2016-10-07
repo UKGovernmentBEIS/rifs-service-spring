@@ -46,11 +46,12 @@ dependencies {
 }
 
 //docker group repo
-group = 'registry.ukrifs.org'
+group = 'registry.ukrifs.org:443'
 
 //docker task
 task buildDocker(type: Docker, dependsOn: build) {
     //push = true
+    //docker push registry.ukrifs.org:443/rifs-service-spring
     applicationName = jar.baseName
     dockerfile = file('src/main/docker/Dockerfile')
     doFirst {
