@@ -5,6 +5,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "application")
+@Cacheable(value = false)
 public class ApplicationDB {
 
     private long id;

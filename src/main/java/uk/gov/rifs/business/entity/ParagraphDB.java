@@ -5,11 +5,9 @@ import javassist.expr.Instanceof;
 import javax.persistence.*;
 import java.lang.Comparable;
 
-/**
- * Created by bendishman on 06/10/2016.
- */
 @Entity
 @Table(name = "paragraph")
+@Cacheable(value = false)
 public class ParagraphDB implements Comparable <ParagraphDB> {
 
         @Id

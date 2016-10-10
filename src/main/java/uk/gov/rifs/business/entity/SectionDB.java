@@ -3,11 +3,9 @@ package uk.gov.rifs.business.entity;
 import javax.persistence.*;
 import java.util.List;
 
-/**
- * Created by bendishman on 06/10/2016.
- */
 @Entity
 @Table(name = "section")
+@Cacheable(value = false)
 public class SectionDB {
 
     private long id;

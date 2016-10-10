@@ -6,6 +6,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "opportunity")
+@Cacheable(value = false)
 public class OpportunityDB {
 
     private long id;
