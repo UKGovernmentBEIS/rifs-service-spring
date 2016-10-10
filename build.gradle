@@ -46,7 +46,7 @@ dependencies {
 }
 
 //docker group repo
-group = 'registry.ukrifs.org:443'
+group = 'registry.ukrifs.org'
 
 //docker task
 task buildDocker(type: Docker, dependsOn: build) {
