@@ -1,8 +1,7 @@
 package uk.gov.rifs.business.entity;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
 
 @Entity
 @Table(name = "application")
