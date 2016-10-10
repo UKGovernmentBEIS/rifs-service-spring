@@ -20,19 +20,17 @@ import java.util.List;
 
 import uk.gov.rifs.business.service.OpportunityService;
 import uk.gov.rifs.business.model.Opportunity;
+import uk.gov.rifs.business.model.Application;
 
 @RestController
 @RequestMapping("/opportunity")
 public class OpportunityController {
 
-    @Autowired
-    private OpportunityRepository opportunityRepository;
+//    @Autowired
+//    private OpportunityRepository opportunityRepository;
 //
 //    @Autowired
-//    private ParagraphRepository paragraphRepository;
-//
-//    @Autowired
-//    private SectionRepository sectionRepository;
+//    private ApplicationRepository applicationRepository;
 
     @Autowired
     private OpportunityService opportunityService;
@@ -61,6 +59,13 @@ public class OpportunityController {
         return new ResponseEntity<Opportunity>(opp, HttpStatus.OK);
     }
 
+    @RequestMapping(value="/{id}/application", method= RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Application> getInitialOpportunityApplication(@PathVariable("id") long id) {
+
+        Application app = opportunityService.getOpportunityApplication(id);
+
+        return new ResponseEntity<Application>(app, HttpStatus.OK);
+    }
 
 //    @RequestMapping("/paragraph")
 //    public List<ParagraphDB> getParagraphTest() {

@@ -6,10 +6,14 @@ import java.util.*;
 import uk.gov.rifs.business.entity.OpportunityDB;
 import uk.gov.rifs.business.entity.ParagraphDB;
 import uk.gov.rifs.business.entity.SectionDB;
+import uk.gov.rifs.business.entity.ApplicationDB;
+import uk.gov.rifs.business.entity.ApplicationSectionDB;
 
 import uk.gov.rifs.business.model.Opportunity;
 import uk.gov.rifs.business.model.Description;
 import uk.gov.rifs.business.model.Value;
+import uk.gov.rifs.business.model.Application;
+import uk.gov.rifs.business.model.ApplicationSection;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,6 +27,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.gov.rifs.business.repository.OpportunityRepository;
+import uk.gov.rifs.business.repository.ApplicationRepository;
 import uk.gov.rifs.business.repository.ParagraphRepository;
 import uk.gov.rifs.business.repository.SectionRepository;
 
@@ -45,10 +50,13 @@ public class OpportunityServiceImpl  implements OpportunityService {
     private OpportunityRepository opportunityRepository;
 
     @Autowired
-    private ParagraphRepository paragraphRepository;
+    private ApplicationRepository applicationRepository;
 
-    @Autowired
-    private SectionRepository sectionRepository;
+//    @Autowired
+//    private ParagraphRepository paragraphRepository;
+//
+//    @Autowired
+//    private SectionRepository sectionRepository;
     /** Gets a list of all Opportunities **/
     @Override
     @Transactional(readOnly = true)
@@ -63,7 +71,7 @@ public class OpportunityServiceImpl  implements OpportunityService {
         List<Opportunity> opportunityModels = opportunities.stream().map
                 (o -> new Opportunity
                     (o.getId(), o.getOpportunityTitle(), o.getStartDate(), o.getValueUnit(), o.getValue().doubleValue(),
-                        o.getSectionDB().stream().map
+                        o.getSections().stream().map
                                 (d -> new Description(d.getSectionNumber(), d.getSectionTitle(), d.getParagraphDB().stream().sorted().map(ParagraphDB::getDescription).collect(Collectors.toList()) )).collect(Collectors.toList())
                     )
                 ).collect(Collectors.toList());
@@ -89,13 +97,12 @@ public class OpportunityServiceImpl  implements OpportunityService {
         //System.out.println ("Size = " + opportunity.getSectionDB().size());
         List <Long> sectionsProcessed = new ArrayList();
 
-        for (SectionDB s : opportunity.getSectionDB())
+        for (SectionDB s : opportunity.getSections())
         {
             //System.out.println ("IN the Section loop.  Sectionid = " + s.getSectionNumber());
             //Bug return 1 is reeturn some kind of cartesian join - temp 'fix'
             if (!sectionsProcessed.contains(s.getId()))
             {
-               // System.out.println ("IN the Section loop IFIFIF!!.  Sectionid = " + s.getSectionNumber());
 
                 List<String> paras = s.getParagraphDB().stream().sorted().map(ParagraphDB::getDescription).collect(Collectors.toList());
                 Description d = new Description(s.getSectionNumber(), s.getSectionTitle(), paras);
@@ -104,8 +111,20 @@ public class OpportunityServiceImpl  implements OpportunityService {
                 sectionsProcessed.add(s.getId());
             }
         }
-////        List<Description> descriptions = opportunity.getSectionDB().stream().map
-////                (d -> new Description(d.getSectionNumber(), d.getSectionTitle(), null )).collect(Collectors.toList());
+
+        /* USE to iunvestigate bug
+                 for (SectionDB s : opportunity.getSections())
+        {
+                //List<String> paras = s.getParagraphDB().stream().sorted().map(ParagraphDB::getDescription).collect(Collectors.toList());
+                for (ParagraphDB p : s.getParagraphDB())
+                {
+                    Description d = new Description(s.getSectionNumber(), s.getSectionTitle(), null);
+                    descriptions.add(d);
+                }
+
+        }
+
+         */
 
         opportunityModel.setDescription(descriptions);
 
@@ -126,6 +145,29 @@ public class OpportunityServiceImpl  implements OpportunityService {
 
         return opportunityModels;
     }
+
+    /** Gets an Application by id **/
+    @Override
+    @Transactional(readOnly = true)
+    public Application getOpportunityApplication(long id) {
+
+        ApplicationDB application = applicationRepository.findOne(id);
+
+        Application applicationModel = new Application();
+        applicationModel.setId(application.getId());
+        applicationModel.setOpportunityId(application.getOpportunityId());
+
+        applicationModel.setSections(
+                application.getSections().stream().map (
+                        as -> new ApplicationSection(as.getSectionNumber(), as.getTitle(), as.isStarted())
+                ).collect(Collectors.toList())
+        );
+
+        return applicationModel;
+    }
+
+
+
 
 }
 
