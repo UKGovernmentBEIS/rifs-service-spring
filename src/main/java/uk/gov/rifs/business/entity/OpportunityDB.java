@@ -47,11 +47,11 @@ public class OpportunityDB {
 
     @OneToMany(fetch=FetchType.EAGER)
     @JoinColumn(name = "opportunity_id", referencedColumnName="id")
-    public List<SectionDB> getSectionDB() {
+    public List<SectionDB> getSections() {
         return this.sections;
     }
 
-    public void setSectionDB(List<SectionDB> sections) {
+    public void setSections(List<SectionDB> sections) {
         this.sections = sections;
     }
 
